@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Futuristic URL & Pass Sorter</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#030417;
+      --panel:#07102a;
+      --accent:#7c5cff;
+      --accent2:#00e0ff;
+      --muted:#86a0c0;
+      --glass: rgba(255,255,255,0.03);
+      --glass-2: rgba(255,255,255,0.02);
+      --neon: 0 8px 30px rgba(124,92,255,0.18);
+      --glow-color: var(--accent2);
+      --glass-blur: 10px;
+    }
+    html,body{height:100%;margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:#dfeaf6;}
+    .container{display:flex;flex-direction:row;height:100vh;overflow:hidden;}
+    .sidebar{width:240px;background:var(--panel);display:flex;flex-direction:column;padding:16px;gap:16px;box-shadow:4px 0 20px rgba(0,0,0,0.3);}
+    .sidebar button{padding:10px;border-radius:8px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;font-weight:700;cursor:pointer;transition:0.2s;}
+    .sidebar button.active{box-shadow:0 0 20px var(--glow-color);}
+    .main{flex:1;display:flex;flex-direction:column;padding:20px;overflow:auto;background-size:cover;background-position:center;}
+    .card{background:linear-gradient(180deg,var(--glass),var(--glass-2));border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:var(--neon);backdrop-filter: blur(var(--glass-blur));}
+    .header{display:flex;justify-content:space-between;align-items:center;}
+    .tagline{color:var(--muted);margin-top:4px;font-size:14px;}
+    .uploader{display:flex;flex-direction:column;gap:12px;}
+    .dropzone{position:relative;border-radius:12px;padding:26px;border:1px dashed rgba(255,255,255,0.04);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:0.15s;}
+    .dropzone:hover{transform:translateY(-4px);}
+    .drop-inner{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;}
+    input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+    .controls{display:flex;align-items:center;gap:12px;margin-top:6px;}
+    button.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:white;font-weight:700;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;box-shadow:0 10px 30px rgba(88,99,255,0.12);}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 12px;border-radius:8px;cursor:pointer;}
+    .table-wrap{max-height:320px;overflow:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.02);margin-top:12px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{padding:10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.02);}
+    thead th{position:sticky;top:0;background:linear-gradient(180deg, rgba(11,18,32,0.6), rgba(11,18,32,0.3));backdrop-filter: blur(6px);}
+    .cube-container{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+    .cube{width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(0,0,0,0.5);transition:0.14s;user-select:none;}
+    .cube.on{border-color:var(--glow-color); box-shadow:0 10px 30px var(--glow-color); transform:translateY(-6px);}
+    .cube .icon-s{font-size:18px;}
+    .cube .label{font-size:11px;margin-top:4px;}
+    .search-row{display:flex;gap:8px;align-items:center;margin-top:12px;}
+    input[type=text]{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;flex:1;}
+    progress{width:100%;height:14px;border-radius:8px;margin-top:12px;overflow:hidden;background:rgba(255,255,255,0.03);}
+    progress::-webkit-progress-value{background:linear-gradient(90deg,var(--glow-color),var(--accent));border-radius:8px;}
+    #toast{position:fixed;right:20px;bottom:20px;background:rgba(0,0,0,0.6);padding:12px 16px;border-radius:10px;color:#fff;border:1px solid rgba(255,255,255,0.04);box-shadow:0 6px 24px rgba(0,0,0,0.6);backdrop-filter: blur(6px);opacity:0;transform:translateY(10px);transition:all .26s;}
+    #toast.show{opacity:1;transform:translateY(0);}
+    .footer{margin-top:12px;text-align:center;font-size:14px;color:var(--muted);}
+    .bg-uploader{display:flex;gap:8px;align-items:center;margin-top:12px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <button id="tabAnalyzer" class="active">Analyzer</button>
+      <button id="tabCleaner">Cleaner</button>
+      <button id="tabProjects">Projects</button>
+      <div class="bg-uploader">
+        <input type="file" id="bgUpload" accept="image/*" />
+        <span style="font-size:12px;color:var(--muted)">Background</span>
+      </div>
+    </div>
+    <div class="main" id="mainContent">
+      <!-- Analyzer Card -->
+      <div id="analyzerCard" class="card">
+        <div class="header">
+          <div>
+            <h2>Analyzer</h2>
+            <div class="tagline">Upload file and detect mail:pass, user:pass, number:pass</div>
+          </div>
+        </div>
+        <div class="uploader">
+          <label class="dropzone" id="drop">
+            <input type="file" id="fileInput" accept=".txt,text/plain">
+            <div class="drop-inner">
+              <div class="drop-text">Drop .txt file or click</div>
+              <div id="fileInfo" class="muted small">No file uploaded</div>
+            </div>
+          </label>
+          <div class="controls">
+            <button id="analyzeBtn" class="primary">Analyze</button>
+            <button id="clearBtn" class="secondary">Clear</button>
+            <button id="stopBtn" class="secondary">Stop</button>
+            <div class="status muted" id="statusSmall">Ready</div>
+          </div>
+        </div>
+        <div class="search-row">
+          <label><input type="checkbox" id="enableSearch"> Enable target search</label>
+          <input type="text" id="searchInput" placeholder="Target keyword" disabled>
+        </div>
+        <div class="cube-container" id="cubes">
+          <div class="cube on" data-type="emails"><div class="icon-s">✉️</div><div class="label">Emails</div></div>
+          <div class="cube on" data-type="users"><div class="icon-s">👤</div><div class="label">Users</div></div>
+          <div class="cube on" data-type="numbers"><div class="icon-s">#️⃣</div><div class="label">Numbers</div></div>
+        </div>
+        <progress id="progressBar" value="0" max="100"></progress>
+        <div style="display:flex;gap:12px;margin-top:6px">
+          <div class="small muted">Loaded: <span id="loadedCount">0</span></div>
+          <div class="small muted">Found: <span id="foundCount">0</span></div>
+          <div class="small muted">Lines: <span id="totalCount">0</span></div>
+        </div>
+        <div class="table-wrap">
+          <table id="table-demo">
+            <thead><tr><th></th><th>Type</th><th>Sample</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="controls" style="margin-top:12px;">
+          <button id="exportZip" class="primary">Export Raw Matches</button>
+          <button id="passToCleaner" class="secondary">Send to Cleaner</button>
+        </div>
+      </div>
+      <!-- Cleaner Card -->
+      <div id="cleanerCard" class="card" style="display:none;">
+        <div class="header">
+          <h2>Cleaner</h2>
+          <div class="tagline">Remove duplicates and prefixes. Keep only mail:pass | user:pass | number:pass</div>
+        </div>
+        <div class="cube-container" id="cleanerOptions">
+          <div class="cube on" data-type="emails"><div class="icon-s">✉️</div><div class="label">Emails</div></div>
+          <div class="cube on" data-type="users"><div class="icon-s">👤</div><div class="label">Users</div></div>
+          <div class="cube on" data-type="numbers"><div class="icon-s">#️⃣</div><div class="label">Numbers</div></div>
+        </div>
+        <div class="controls" style="margin-top:12px;">
+          <button id="cleanUrlsBtn" class="primary">Clean Matches</button>
+          <button id="exportCleanedZip" class="primary">Export Cleaned</button>
+        </div>
+        <div class="table-wrap" style="margin-top:12px;">
+          <table id="table-cleaned">
+            <thead><tr><th></th><th>Type</th><th>Cleaned Sample</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Projects Card -->
+      <div id="projectsCard" class="card" style="display:none;">
+        <h2>Old Projects</h2>
+        <div class="tagline">Your previous uploads and cleaned results will appear here (future expansion)</div>
+      </div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+/* ---------- THEME & BASE ---------- */
+:root {
+  --bg-color:#030417;
+  --accent:#7c5cff;
+  --accent2:#00e0ff;
+  --muted:#86a0c0;
+  --glass: rgba(255,255,255,0.03);
+  --glass-blur: 12px;
+  --neon: 0 8px 30px rgba(124,92,255,0.18);
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+body, html { height:100%; font-family: 'Inter', sans-serif; color:#dfeaf6; background:#030417; }
+
+#bg-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: radial-gradient(circle at 10% 10%, rgba(0,224,255,0.05), transparent 10%);
+  z-index:-1; backdrop-filter: blur(10px);
+  transition: all 0.5s ease;
+}
+
+.app-container { display:flex; height:100vh; overflow:hidden; }
+
+/* ---------- SIDEBAR ---------- */
+.sidebar {
+  width:220px; background: linear-gradient(180deg,#07102a,#0a1a3f); padding:20px; display:flex; flex-direction:column;
+  gap:20px;
+}
+
+.sidebar .logo { font-size:1.5em; font-weight:700; margin-bottom:10px; }
+.sidebar nav ul { list-style:none; display:flex; flex-direction:column; gap:12px; }
+.sidebar nav ul li { padding:10px; border-radius:10px; cursor:pointer; transition:0.2s; }
+.sidebar nav ul li.active, .sidebar nav ul li:hover { background: rgba(124,92,255,0.3); box-shadow:0 4px 20px rgba(124,92,255,0.3); }
+
+.sidebar-footer { margin-top:auto; display:flex; flex-direction:column; gap:8px; font-size:0.85em; }
+.sidebar-footer input[type=file] { cursor:pointer; }
+
+/* ---------- MAIN CONTENT ---------- */
+.main-content { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:20px; }
+header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+header h1 { font-size:1.8em; }
+header .status { font-size:0.9em; color:var(--muted); }
+
+.section { display:none; }
+.section.active { display:block; }
+
+.card { background: linear-gradient(180deg,var(--glass),rgba(255,255,255,0.02)); border-radius:16px;
+  padding:20px; box-shadow:var(--neon); backdrop-filter: blur(var(--glass-blur)); transition:0.3s; }
+.card h2 { margin-bottom:12px; font-size:1.3em; }
+
+input[type=file], input[type=text], input[type=color] { padding:8px 10px; border-radius:8px; border:none; outline:none; background: rgba(255,255,255,0.03); color:inherit; }
+
+button { padding:10px 14px; border:none; border-radius:10px; cursor:pointer; font-weight:700; transition:0.2s; }
+button:hover { transform: translateY(-2px); box-shadow:0 6px 20px rgba(124,92,255,0.2); }
+
+.cubes { display:flex; gap:10px; margin:10px 0; }
+.cube { padding:10px 12px; border-radius:10px; cursor:pointer; background:rgba(255,255,255,0.03); transition:0.2s; }
+.cube.on { background: linear-gradient(90deg,var(--accent),var(--accent2)); box-shadow:0 6px 20px rgba(124,92,255,0.3); }
+
+/* ---------- TABLE ---------- */
+.table-wrap { max-height:300px; overflow:auto; margin-top:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.05); }
+table { width:100%; border-collapse: collapse; }
+th, td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.02); text-align:left; }
+thead th { position:sticky; top:0; background: rgba(11,18,32,0.6); backdrop-filter:blur(4px); }
+
+/* ---------- PROGRESS & STATS ---------- */
+progress { width:100%; height:14px; border-radius:8px; overflow:hidden; }
+progress::-webkit-progress-bar { background:rgba(255,255,255,0.03); }
+progress::-webkit-progress-value { background: linear-gradient(90deg,var(--accent2),var(--accent)); }
+
+/* ---------- TOAST ---------- */
+.toast { position:fixed; bottom:20px; right:20px; background:rgba(0,0,0,0.6); padding:12px 16px; border-radius:10px; color:#fff;
+  box-shadow:0 6px 24px rgba(0,0,0,0.6); backdrop-filter: blur(6px); opacity:0; transform:translateY(10px); transition:0.3s; }
+.toast.show { opacity:1; transform:translateY(0); }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:900px) {
+  .app-container { flex-direction:column; }
+  .sidebar { width:100%; flex-direction:row; overflow-x:auto; }
+  .sidebar nav ul { flex-direction:row; gap:6px; }
+  .main-content { padding:10px; }
+}
